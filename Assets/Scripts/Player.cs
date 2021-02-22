@@ -10,7 +10,8 @@ public class Player : MonoBehaviour
 	[SerializeField] private float _jumpHeight= 15.0f;
 
 	private float _yVelocity; // Caching y velocity between frames
-
+	private bool _canDoubleJump;
+	private int _coins;
 
 	private void Start()
 	{
@@ -38,22 +39,34 @@ public class Player : MonoBehaviour
 			// Apply Gravity effect
 			if (_controller.isGrounded)
 			{
-				
 				// Enable jump 
 				if (Input.GetKey(KeyCode.Space))
 				{
 					_yVelocity = _jumpHeight;
+					_canDoubleJump = true;
 				}
 			}
 			else
 			{
+				// Check for double jump
+				// Can only double jump , second jump if not grounded ie still in air
+				if (Input.GetKeyDown(KeyCode.Space))
+				if (_canDoubleJump)
+				{
+					_yVelocity += _jumpHeight;
+					_canDoubleJump = false;
+				}
+
 				_yVelocity -= _gravityMod;
 			}
-
-
 			velocity.y = _yVelocity;
 			_controller.Move(velocity * Time.deltaTime);
 		}
 		
+	}
+
+	public void UpdateCoins(int amount)
+	{
+		_coins += amount;
 	}
 }
