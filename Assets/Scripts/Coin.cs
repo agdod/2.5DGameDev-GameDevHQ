@@ -11,9 +11,14 @@ public class Coin : MonoBehaviour
 	{
 		if (other.tag == "Player")
 		{
+			
+			if (other.TryGetComponent(out Player player))
+			{
+				player.UpdateCoins(_coinValue);
+			}
 			Debug.Log("triggered with : " + other);
 			_uiManager.UpdateCoins(_coinValue);
-			other.GetComponent<Player>().UpdateCoins(_coinValue);
+			
 			this.gameObject.SetActive(false);
 		}
 	}
