@@ -6,13 +6,15 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-	[SerializeField] private TMP_Text _coinTxt;
-	private int _coins;
-
+	[SerializeField] private TMP_Text _coinTxt, _livesTxt;
 
 	public void UpdateCoins(int amount)
 	{
-		_coins += amount;
-		_coinTxt.text = "Coins :" + _coins.ToString();
+		_coinTxt.text = "Coins : " + amount.ToString();
+	}
+
+	public void UpdateLives(int lives)
+	{
+		_livesTxt.text = "Lives : " + lives.ToString();
 	}
 }
