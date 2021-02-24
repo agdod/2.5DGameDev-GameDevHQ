@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
 	[SerializeField] private CharacterController _controller;
 	[SerializeField] private float _speed = 5.0f;
 	[SerializeField] private float _gravityMod = 1.0f;
-	[SerializeField] private float _jumpHeight= 15.0f;
+	[SerializeField] private float _jumpHeight = 15.0f;
 	[SerializeField] private int _lives = 3;
 	[SerializeField] private Transform _startingPos;
 
@@ -21,6 +21,11 @@ public class Player : MonoBehaviour
 	private float _yVelocity; // Caching y velocity between frames
 	private bool _canDoubleJump;
 	private bool _livesTriggered;
+
+	public int Coins
+	{
+		get { return _coins; }
+	}
 
 	private void Start()
 	{
@@ -97,7 +102,7 @@ public class Player : MonoBehaviour
 			_lives--;
 			_livesTriggered = true;
 		}
-		
+
 		//If player has zero lives restart
 		if (_lives == 0)
 		{
