@@ -18,10 +18,14 @@ public class Player : MonoBehaviour
 
 	[SerializeField] private int _coins;
 
+	private Vector3 _direction;
+	private Vector3 _velocity;
+
 	private float _yVelocity; // Caching y velocity between frames
 	private bool _canDoubleJump;
 	private bool _livesTriggered;
-
+	private bool _canWallJump = false;
+	private Vector3 _wallJumpDirection;
 	public int Coins
 	{
 		get { return _coins; }
@@ -47,36 +51,66 @@ public class Player : MonoBehaviour
 		{
 			if (_controller != null)
 			{
-				float horizontal = Input.GetAxis("Horizontal");
-				Vector3 direction = new Vector3(horizontal, 0, 0);
-				Vector3 velocity = direction * _speed;
-
-				// Apply Gravity effect
-				if (_controller.isGrounded)
-				{
-					// Enable jump 
-					if (Input.GetKey(KeyCode.Space))
-					{
-						_yVelocity = _jumpHeight;
-						_canDoubleJump = true;
-					}
-				}
-				else
-				{
-					// Check for double jump
-					// Can only double jump , second jump if not grounded ie still in air
-					if (Input.GetKeyDown(KeyCode.Space))
-						if (_canDoubleJump)
-						{
-							_yVelocity += _jumpHeight;
-							_canDoubleJump = false;
-						}
-
-					_yVelocity -= _gravityMod;
-				}
-				velocity.y = _yVelocity;
-				_controller.Move(velocity * Time.deltaTime);
+				PlayerMovement();
 			}
+		}
+	}
+
+	private void PlayerMovement()
+	{
+		float horizontal = Input.GetAxis("Horizontal");
+
+		// Apply Gravity effect
+		if (_controller.isGrounded)
+		{
+			_canWallJump = false;
+			_direction = new Vector3(horizontal, 0, 0);
+			_velocity = _direction * _speed;
+			// Enable jump 
+			if (Input.GetKey(KeyCode.Space))
+			{
+				_yVelocity = _jumpHeight;
+				_canDoubleJump = true;
+			}
+		}
+		else
+		{
+			// Check for double jump
+			// Can only double jump , second jump if not grounded ie still in air
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				if (_canDoubleJump)
+				{
+					_yVelocity += _jumpHeight;
+					_canDoubleJump = false;
+				}
+				if (_canWallJump)
+				{
+					_yVelocity = _jumpHeight;
+					_velocity = _wallJumpDirection * _speed;
+				}
+			} 
+			else
+			{
+				_yVelocity -= _gravityMod;
+			}
+			
+		}
+		_velocity.y = _yVelocity;
+		_controller.Move(_velocity * Time.deltaTime);
+	}
+
+	private void OnControllerColliderHit(ControllerColliderHit hit)
+	{
+		// Wall jumping
+		// Hit the wall and not grounded
+		if (!_controller.isGrounded && hit.transform.tag == "Wall")
+		{
+			Debug.DrawRay(hit.point, hit.normal, Color.red);
+			// Can wall jump
+			_canWallJump = true;
+			// Wall jump direction
+			_wallJumpDirection = hit.normal;
 		}
 	}
 
