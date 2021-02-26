@@ -75,26 +75,29 @@ public class Player : MonoBehaviour
 		}
 		else
 		{
-			// Check for double jump
-			// Can only double jump , second jump if not grounded ie still in air
+			// Check for Jump ability
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
+				// Check for jump type.
+				// Wall jump first then double jump checking
+				if (_canWallJump)
+				{
+					_canDoubleJump = false;
+					_yVelocity = _jumpHeight;
+					_velocity = _wallJumpDirection * _speed;
+				}
 				if (_canDoubleJump)
 				{
 					_yVelocity += _jumpHeight;
 					_canDoubleJump = false;
 				}
-				if (_canWallJump)
-				{
-					_yVelocity = _jumpHeight;
-					_velocity = _wallJumpDirection * _speed;
-				}
-			} 
+
+			}
+			// else fall to ground.
 			else
 			{
 				_yVelocity -= _gravityMod;
 			}
-			
 		}
 		_velocity.y = _yVelocity;
 		_controller.Move(_velocity * Time.deltaTime);
@@ -106,7 +109,7 @@ public class Player : MonoBehaviour
 		// Hit the wall and not grounded
 		if (!_controller.isGrounded && hit.transform.tag == "Wall")
 		{
-			Debug.DrawRay(hit.point, hit.normal, Color.red);
+			Debug.DrawRay(hit.point, hit.normal, Color.blue);
 			// Can wall jump
 			_canWallJump = true;
 			// Wall jump direction
