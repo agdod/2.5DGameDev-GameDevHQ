@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
 	[SerializeField] private float _gravityMod = 1.0f;
 	[SerializeField] private float _jumpHeight = 15.0f;
 	[SerializeField] private int _lives = 3;
+	[SerializeField] private float _pushForce = 2.0f;
 	[SerializeField] private Transform _startingPos;
 
 	[SerializeField] private int _coins;
@@ -64,6 +65,7 @@ public class Player : MonoBehaviour
 		if (_controller.isGrounded)
 		{
 			_canWallJump = false;
+			_canDoubleJump = false;
 			_direction = new Vector3(horizontal, 0, 0);
 			_velocity = _direction * _speed;
 			// Enable jump 
@@ -109,12 +111,44 @@ public class Player : MonoBehaviour
 		// Hit the wall and not grounded
 		if (!_controller.isGrounded && hit.transform.tag == "Wall")
 		{
-			Debug.DrawRay(hit.point, hit.normal, Color.blue);
 			// Can wall jump
 			_canWallJump = true;
 			// Wall jump direction
 			_wallJumpDirection = hit.normal;
 		}
+
+		// Else has hit object , check if pushable object
+		Rigidbody body = hit.collider.attachedRigidbody;
+
+		if (Pushable(hit, body))
+		{
+			// Calculate push direction from move direction
+			// push along x never up or down, only 2.5D game so no z-axis
+			Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, 0);
+
+			// multipy the push velcity by player velcoity
+			// Apply the push
+			//_pushForce += _velocity.x;
+			body.velocity = pushDir * _pushForce;
+		}
+	}
+
+	private bool Pushable(ControllerColliderHit hit, Rigidbody body)
+	{
+		// If object has no rigidbody return
+		if (body == null || body.isKinematic)
+		{
+			return false;
+		}
+
+		// Dont push object below player.
+		if (hit.moveDirection.y < -0.3f)
+		{
+			return false;
+		}
+
+		//maybe add tag for pushable objects?
+		return true;
 	}
 
 	void ResetPosition()
