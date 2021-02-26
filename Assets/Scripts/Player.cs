@@ -118,36 +118,39 @@ public class Player : MonoBehaviour
 		}
 
 		// Else has hit object , check if pushable object
-		Rigidbody body = hit.collider.attachedRigidbody;
+		// Check for rigidbody
+		if (hit.collider.TryGetComponent (out Rigidbody body) ){
+			if (Pushable(hit, body))
+			{
+				// Calculate push direction from move direction
+				// push along x never up or down, only 2.5D game so no z-axis
+				Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, 0);
 
-		if (Pushable(hit, body))
-		{
-			// Calculate push direction from move direction
-			// push along x never up or down, only 2.5D game so no z-axis
-			Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, 0);
-
-			// multipy the push velcity by player velcoity
-			// Apply the push
-			//_pushForce += _velocity.x;
-			body.velocity = pushDir * _pushForce;
-		}
+				// multipy the push velcity by player velcoity
+				// Apply the push
+				//_pushForce += _velocity.x;
+				body.velocity = pushDir * _pushForce;
+			}
+			//body = hit.collider.attachedRigidbody;
+		}	
 	}
 
 	private bool Pushable(ControllerColliderHit hit, Rigidbody body)
 	{
+		if (hit.collider.tag != "Moveable")
+		{
+			return false;
+		}
 		// If object has no rigidbody return
 		if (body == null || body.isKinematic)
 		{
 			return false;
 		}
-
 		// Dont push object below player.
 		if (hit.moveDirection.y < -0.3f)
 		{
 			return false;
 		}
-
-		//maybe add tag for pushable objects?
 		return true;
 	}
 
